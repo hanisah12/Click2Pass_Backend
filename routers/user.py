@@ -17,6 +17,18 @@ def create_user(user_data: UserCreate, db: Session = Depends(connect_to_db)):
     return user
 
 
+@router.post("/login", response_model=UserResponse)
+def login_user(user_credentials: UserLogin, db: Session = Depends(connect_to_db)):
+    user = db.query(Users).filter(Users.email == user_credentials.email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    if user.password != user_credentials.password:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+        
+    return user
+
+
 @router.get("/", response_model=list[UserResponse])
 def get_all_users(db: Session = Depends(connect_to_db)):
     return db.query(Users).all()

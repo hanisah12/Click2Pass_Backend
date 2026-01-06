@@ -15,6 +15,10 @@ class UserUpdate(BaseModel):
     phone: str=Field(min_length=10, max_length=10)
     password: str
 
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
+
 
 class UserResponse(BaseModel):
     user_id: int

@@ -22,41 +22,41 @@ def get_all_messages(db: Session = Depends(connect_to_db)):
     return db.query(Message).all()
 
 
-@router.get("/user/{user_id}", response_model=list[MessageResponse])
-def get_user_messages(user_id: int, db: Session = Depends(connect_to_db)):
-    return db.query(Message).filter(Message.user_id == user_id).all()
+# @router.get("/user/{user_id}", response_model=list[MessageResponse])
+# def get_user_messages(user_id: int, db: Session = Depends(connect_to_db)):
+#     return db.query(Message).filter(Message.user_id == user_id).all()
 
 
-@router.get("/{message_id}", response_model=MessageResponse)
-def get_message(message_id: int, db: Session = Depends(connect_to_db)):
-    msg = db.query(Message).filter(Message.message_id == message_id).first()
-    if not msg:
-        raise HTTPException(status_code=404, detail="Message not found")
-    return msg
+# @router.get("/{message_id}", response_model=MessageResponse)
+# def get_message(message_id: int, db: Session = Depends(connect_to_db)):
+#     msg = db.query(Message).filter(Message.message_id == message_id).first()
+#     if not msg:
+#         raise HTTPException(status_code=404, detail="Message not found")
+#     return msg
 
-@router.put("/{message_id}", response_model=MessageResponse)
-def update_message(
-    msg_id: int,
-    message_data: MessageUpdate,
-    db: Session = Depends(connect_to_db)
-):
-    msg = db.query(Message).filter(Message.message_id == msg_id).first()
-    if not msg:
-        raise HTTPException(status_code=404, detail="Message not found")
+# @router.put("/{message_id}", response_model=MessageResponse)
+# def update_message(
+#     msg_id: int,
+#     message_data: MessageUpdate,
+#     db: Session = Depends(connect_to_db)
+# ):
+#     msg = db.query(Message).filter(Message.message_id == msg_id).first()
+#     if not msg:
+#         raise HTTPException(status_code=404, detail="Message not found")
 
-    for key, value in message_data.model_dump().items():
-        setattr(msg, key, value)
+#     for key, value in message_data.model_dump().items():
+#         setattr(msg, key, value)
 
-    db.commit()
-    db.refresh(msg)
-    return msg
+#     db.commit()
+#     db.refresh(msg)
+#     return msg
 
-@router.delete("/{message_id}")
-def delete_message(message_id: int, db: Session = Depends(connect_to_db)):
-    msg = db.query(Message).filter(Message.message_id == message_id).first()
-    if not msg:
-        raise HTTPException(status_code=404, detail="Message not found")
+# @router.delete("/{message_id}")
+# def delete_message(message_id: int, db: Session = Depends(connect_to_db)):
+#     msg = db.query(Message).filter(Message.message_id == message_id).first()
+#     if not msg:
+#         raise HTTPException(status_code=404, detail="Message not found")
 
-    db.delete(msg)
-    db.commit()
-    return {"message": "Message deleted"}
+#     db.delete(msg)
+#     db.commit()
+#     return {"message": "Message deleted"}

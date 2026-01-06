@@ -6,4 +6,4 @@ def connect_to_db():
         yield db
     finally:
         db.close()
-                
+        
