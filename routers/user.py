@@ -54,12 +54,5 @@ def delete_user(user_id: int, db: Session = Depends(connect_to_db)):
     db.commit()
     return {"message": "User deleted"}
 
-@router.post("/login")
-def login(user_credentials: UserLogin, db: Session = Depends(connect_to_db)):
-    user = db.query(Users).filter(Users.email == user_credentials.email,
-                                  Users.password == user_credentials.password).first()
-    if not user:
-        raise HTTPException(status_code=401, detail="Invalid email or password")
-    return {"message": "Login successful", "user_id": user.user_id}
 
 
