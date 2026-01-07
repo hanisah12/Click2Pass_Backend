@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from models.user import Users
 from dependencies import connect_to_db
-from schemas.user import UserCreate, UserUpdate, UserResponse, UserLogin
+from schemas.user import UserCreate, UserUpdate, UserResponse, UserLogin, UserPatch
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -42,20 +42,6 @@ def get_user(user_id: int, db: Session = Depends(connect_to_db)):
     return user
 
 
-@router.put("/{user_id}", response_model=UserResponse)
-def update_user(user_id: int,user_data: UserUpdate,db: Session = Depends(connect_to_db)):
-    user = db.query(Users).filter(Users.user_id == user_id).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    for key, value in user_data.model_dump().items():
-        setattr(user, key, value)
-
-    db.commit()
-    db.refresh(user)
-    return user
-
-
 @router.delete("/{user_id}")
 def delete_user(user_id: int, db: Session = Depends(connect_to_db)):
     user = db.query(Users).filter(Users.user_id == user_id).first()
@@ -67,4 +53,22 @@ def delete_user(user_id: int, db: Session = Depends(connect_to_db)):
     return {"message": "User deleted"}
 
 
+@router.patch("/{user_id}", response_model=UserResponse)
+def patch_user(
+    user_id: int,
+    user_data: UserPatch,
+    db: Session = Depends(connect_to_db)
+):
+    user = db.query(Users).filter(Users.user_id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    update_data = user_data.model_dump(exclude_unset=True)
+
+    for key, value in update_data.items():
+        setattr(user, key, value)
+
+    db.commit()
+    db.refresh(user)
+    return user
 

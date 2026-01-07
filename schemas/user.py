@@ -26,4 +26,8 @@ class UserResponse(BaseModel):
     email: EmailStr
     phone: str=Field(min_length=10, max_length=10)
   
-
+class UserPatch(BaseModel):
+    name: Optional[str] = None
+    email: Optional[EmailStr] = None
+    phone: Optional[str] = Field(default=None, min_length=10, max_length=10)
+    password: Optional[str] = None

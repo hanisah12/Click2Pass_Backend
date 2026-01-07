@@ -25,3 +25,7 @@ class PassResponse(BaseModel):
     valid_from: date
     valid_till: date
  
+class PassPatch(BaseModel):
+    pass_type: Optional[str] = None
+    valid_from: Optional[date] = None
+    valid_till: Optional[date] = None

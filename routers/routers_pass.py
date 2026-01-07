@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from models.apply_pass import ApplyPass
 from dependencies import connect_to_db
-from schemas.passes import PassCreate, PassUpdate, PassResponse
+from schemas.passes import PassCreate, PassUpdate, PassResponse, PassPatch
 
 router = APIRouter(prefix="/passes", tags=["Passes"])
 
@@ -20,9 +20,6 @@ def create_pass(pass_data: PassCreate, db: Session = Depends(connect_to_db)):
 def get_all_passes(db: Session = Depends(connect_to_db)):
     return db.query(ApplyPass).all()
 
-@router.get("/user/{user_id}", response_model=list[PassResponse])
-def get_user_passes(user_id: int, db: Session = Depends(connect_to_db)):
-    return db.query(ApplyPass).filter(ApplyPass.user_id == user_id).all()
 
 @router.get("/{pass_id}", response_model=PassResponse)
 def get_pass(pass_id: int, db: Session = Depends(connect_to_db)):
@@ -54,6 +51,28 @@ def delete_pass(pass_id: int, db: Session = Depends(connect_to_db)):
     db.delete(bus_pass)
     db.commit()
     return {"message": "Pass deleted"}
+
+@router.patch("/{pass_id}", response_model=PassResponse)
+def patch_pass(
+    pass_id: int,
+    pass_data: PassPatch,
+    db: Session = Depends(connect_to_db)
+):
+    bus_pass = db.query(ApplyPass).filter(ApplyPass.pass_id == pass_id).first()
+    if not bus_pass:
+        raise HTTPException(status_code=404, detail="Pass not found")
+
+    update_data = pass_data.model_dump(exclude_unset=True)
+
+    if not update_data:
+        raise HTTPException(status_code=400, detail="No fields provided to update")
+
+    for key, value in update_data.items():
+        setattr(bus_pass, key, value)
+
+    db.commit()
+    db.refresh(bus_pass)
+    return bus_pass
 
 
 
