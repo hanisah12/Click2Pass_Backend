@@ -22,9 +22,9 @@ def get_all_messages(db: Session = Depends(connect_to_db)):
     return db.query(Message).all()
 
 
-# @router.get("/user/{user_id}", response_model=list[MessageResponse])
-# def get_user_messages(user_id: int, db: Session = Depends(connect_to_db)):
-#     return db.query(Message).filter(Message.user_id == user_id).all()
+@router.get("/user/{user_id}", response_model=list[MessageResponse])
+def get_user_messages(user_id: int, db: Session = Depends(connect_to_db)):
+    return db.query(Message).filter(Message.user_id == user_id).all()
 
 
 # @router.get("/{message_id}", response_model=MessageResponse)

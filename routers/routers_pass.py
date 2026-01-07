@@ -7,14 +7,42 @@ from schemas.passes import PassCreate, PassUpdate, PassResponse, PassPatch
 
 router = APIRouter(prefix="/passes", tags=["Passes"])
 
+# @router.post("/create", response_model=PassResponse)
+# def create_pass(pass_data: PassCreate, db: Session = Depends(connect_to_db)):
+#     new_pass = ApplyPass(**pass_data.model_dump())
+#     db.add(new_pass)
+#     db.commit()
+#     db.refresh(new_pass)
+#     return new_pass
+    
+
+
 @router.post("/create", response_model=PassResponse)
 def create_pass(pass_data: PassCreate, db: Session = Depends(connect_to_db)):
+
+    if pass_data.valid_till < pass_data.valid_from:
+        raise HTTPException(
+            status_code=400,
+            detail="valid_till cannot be earlier than valid_from"
+        )
+    last_pass = db.query(ApplyPass).filter(
+        ApplyPass.user_id == pass_data.user_id
+    ).order_by(ApplyPass.valid_till.desc()).first()
+
+    if last_pass and pass_data.valid_from <= last_pass.valid_till:
+        raise HTTPException(
+            status_code=400,
+            detail="You already have a pass. New pass must start after previous pass ends"
+        )
+
     new_pass = ApplyPass(**pass_data.model_dump())
     db.add(new_pass)
     db.commit()
     db.refresh(new_pass)
+
     return new_pass
-    
+
+
 
 @router.get("/", response_model=list[PassResponse])
 def get_all_passes(db: Session = Depends(connect_to_db)):
